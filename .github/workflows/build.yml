@@ -21,6 +21,13 @@ on:
           - riscv64
           - s390x
           - x86
+      runtime:
+        description: Runtime flavor
+        required: true
+        type: choice
+        options:
+          - coreclr
+          - mono
       ref:
         description: Git branch or tag
         required: true
@@ -56,7 +63,14 @@ jobs:
             --workdir /dotnet \
             --env ROOTFS_DIR=/crossrootfs/${{ inputs.arch }} \
             mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-${{ inputs.tfm }}-cross-${{ inputs.arch }} \
-            ./build.sh --clean-while-building --prep --source-only --arch ${{ inputs.arch == 'amd64' && 'x64' || inputs.arch }} --os linux -p:OfficialBuildId=$(date +%Y%m%d).99
+            ./build.sh \
+              --clean-while-building \
+              --prep \
+              --source-only \
+              --arch ${{ inputs.arch == 'amd64' && 'x64' || inputs.arch }} \
+              --os linux \
+              ${{ inputs.runtime == 'mono' && '--use-mono-runtime' || '' }} \
+              -property:OfficialBuildId=$(date +%Y%m%d).99
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
