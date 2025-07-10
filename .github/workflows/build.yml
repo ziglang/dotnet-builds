@@ -13,13 +13,13 @@ on:
         required: true
         type: choice
         options:
-          - amd64
           - arm
           - arm64
           - loongarch64
           - ppc64le
           - riscv64
           - s390x
+          - x64
       runtime:
         description: Runtime flavor
         required: true
@@ -61,12 +61,12 @@ jobs:
             --volume ${{ github.workspace }}/dotnet:/dotnet \
             --workdir /dotnet \
             --env ROOTFS_DIR=/crossrootfs/${{ inputs.arch }} \
-            mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-${{ inputs.tfm }}-cross-${{ inputs.arch }} \
+            mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-${{ inputs.tfm }}-cross-${{ inputs.arch == 'x64' && 'amd64' || inputs.arch }} \
             ./build.sh \
               --clean-while-building \
               --prep \
               --source-only \
-              --arch ${{ inputs.arch == 'amd64' && 'x64' || inputs.arch }} \
+              --arch ${{ inputs.arch }} \
               --os linux \
               ${{ inputs.runtime == 'mono' && '--use-mono-runtime' || '' }} \
               -property:OfficialBuildId=$(date +%Y%m%d).99
