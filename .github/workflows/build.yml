@@ -1,20 +1,23 @@
 on:
   workflow_dispatch:
-    arch:
-      required: true
-      type: choice
-      options:
-        - amd64
-        - arm
-        - arm64
-        - loongarch64
-        - ppc64le
-        - riscv64
-        - s390x
-        - x86
-    ref:
-      required: true
-      type: string
+    inputs:
+      arch:
+        description: Target architecture (.NET RID spelling)
+        required: true
+        type: choice
+        options:
+          - amd64
+          - arm
+          - arm64
+          - loongarch64
+          - ppc64le
+          - riscv64
+          - s390x
+          - x86
+      ref:
+        description: Git branch or tag
+        required: true
+        type: string
 permissions:
   contents: read
 env:
@@ -34,21 +37,21 @@ jobs:
           remove-haskell: true
           remove-large-packages: true
           remove-swapfile: true
-    - name: Clone
-      run: |
-        git clone --branch ${{ inputs.ref }} --depth 1 --single-branch https://github.com/dotnet/dotnet
-    - name: Build
-      run: |
-        docker run \
-          --rm \
-          --platform linux/amd64 \
-          --volume ${{ github.workspace }}/dotnet:/dotnet \
-          --workdir /dotnet \
-          --env ROOTFS_DIR=/crossrootfs/${{ inputs.arch }} \
-          mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-net10.0-cross-${{ inputs.arch }} \
-          ./build.sh --clean-while-building --prep --source-only --arch ${{ inputs.arch }} --os linux -p:OfficialBuildId=$(date +%Y%m%d).99
-    - name: Upload
-      uses: actions/upload-artifact@v4
-      with:
-        name: dotnet-sdk-linux-${{ inputs.arch }}
-        path: ${{ github.workspace }}/dotnet/artifacts/assets/Release/Sdk/*/dotnet-sdk-*-linux-${{ inputs.arch }}.tar.gz
+      - name: Clone
+        run: |
+          git clone --branch ${{ inputs.ref }} --depth 1 --single-branch https://github.com/dotnet/dotnet
+      - name: Build
+        run: |
+          docker run \
+            --rm \
+            --platform linux/amd64 \
+            --volume ${{ github.workspace }}/dotnet:/dotnet \
+            --workdir /dotnet \
+            --env ROOTFS_DIR=/crossrootfs/${{ inputs.arch }} \
+            mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-net10.0-cross-${{ inputs.arch }} \
+            ./build.sh --clean-while-building --prep --source-only --arch ${{ inputs.arch }} --os linux -p:OfficialBuildId=$(date +%Y%m%d).99
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-sdk-linux-${{ inputs.arch }}
+          path: ${{ github.workspace }}/dotnet/artifacts/assets/Release/Sdk/*/dotnet-sdk-*-linux-${{ inputs.arch }}.tar.gz
