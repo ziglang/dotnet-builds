@@ -20,7 +20,6 @@ on:
           - ppc64le
           - riscv64
           - s390x
-          - x86
       runtime:
         description: Runtime flavor
         required: true
