@@ -60,8 +60,8 @@ jobs:
             --platform linux/amd64 \
             --volume ${{ github.workspace }}/dotnet:/dotnet \
             --workdir /dotnet \
-            --env ROOTFS_DIR=/crossrootfs/${{ inputs.arch }} \
-            mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-${{ inputs.tfm }}-cross-${{ inputs.arch == 'x64' && 'amd64' || inputs.arch }} \
+            ${{ inputs.arch != 'x64' && format('--env ROOTFS_DIR=/crossrootfs/{0}', inputs.arch) || '' }} \
+            mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-${{ inputs.tfm }}-${{ inputs.arch == 'x64' && 'build' || 'cross' }}-${{ inputs.arch == 'x64' && 'amd64' || inputs.arch }} \
             ./build.sh \
               --clean-while-building \
               --prep \
