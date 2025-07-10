@@ -1,6 +1,13 @@
 on:
   workflow_dispatch:
     inputs:
+      tfm:
+        description: Target framework moniker
+        required: true
+        type: choice
+        options:
+          - net9.0
+          - net10.0
       arch:
         description: Target architecture (.NET RID spelling)
         required: true
@@ -48,7 +55,7 @@ jobs:
             --volume ${{ github.workspace }}/dotnet:/dotnet \
             --workdir /dotnet \
             --env ROOTFS_DIR=/crossrootfs/${{ inputs.arch }} \
-            mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-net10.0-cross-${{ inputs.arch }} \
+            mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-${{ inputs.tfm }}-cross-${{ inputs.arch }} \
             ./build.sh --clean-while-building --prep --source-only --arch ${{ inputs.arch }} --os linux -p:OfficialBuildId=$(date +%Y%m%d).99
       - name: Upload
         uses: actions/upload-artifact@v4
