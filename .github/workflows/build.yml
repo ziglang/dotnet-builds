@@ -69,6 +69,7 @@ jobs:
               --arch ${{ inputs.arch }} \
               --os linux \
               ${{ inputs.runtime == 'mono' && '--use-mono-runtime' || '' }} \
+              -property:CrossBuild=true \
               -property:OfficialBuildId=$(date +%Y%m%d).99
       - name: Upload
         uses: actions/upload-artifact@v4
