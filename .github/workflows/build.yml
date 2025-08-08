@@ -20,6 +20,13 @@ on:
           - riscv64
           - s390x
           - x64
+      os:
+        description: Target operating system
+        required: true
+        type: choice
+        options:
+          - freebsd
+          - linux
       runtime:
         description: Runtime flavor
         required: true
@@ -61,18 +68,18 @@ jobs:
             --volume ${{ github.workspace }}/dotnet:/dotnet \
             --workdir /dotnet \
             --env ROOTFS_DIR=/crossrootfs/${{ inputs.arch }} \
-            mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-${{ inputs.tfm }}-cross-${{ inputs.arch == 'x64' && 'amd64' || inputs.arch }} \
+            mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-${{ inputs.tfm }}-cross-${{ inputs.os == 'freebsd' && '-freebsd-14' || '' }}${{ inputs.arch == 'x64' && 'amd64' || inputs.arch }} \
             ./build.sh \
               --clean-while-building \
               --prep \
               --source-only \
               --arch ${{ inputs.arch }} \
-              --os linux \
+              --os ${{ inputs.os }} \
               ${{ inputs.runtime == 'mono' && '--use-mono-runtime' || '' }} \
               -property:CrossBuild=true \
               -property:OfficialBuildId=$(date +%Y%m%d).99
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: dotnet-sdk-linux-${{ inputs.arch }}
-          path: ${{ github.workspace }}/dotnet/artifacts/assets/Release/Sdk/*/dotnet-sdk-*-linux-${{ inputs.arch }}.tar.gz
+          name: dotnet-sdk-${{ inputs.os }}-${{ inputs.arch }}
+          path: ${{ github.workspace }}/dotnet/artifacts/assets/Release/Sdk/*/dotnet-sdk-*-${{ inputs.os }}-${{ inputs.arch }}.tar.gz
