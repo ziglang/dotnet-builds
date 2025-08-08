@@ -68,7 +68,7 @@ jobs:
             --volume ${{ github.workspace }}/dotnet:/dotnet \
             --workdir /dotnet \
             --env ROOTFS_DIR=/crossrootfs/${{ inputs.arch }} \
-            mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-${{ inputs.tfm }}-cross-${{ inputs.os == 'freebsd' && '-freebsd-14' || '' }}${{ inputs.arch == 'x64' && 'amd64' || inputs.arch }} \
+            mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-${{ inputs.tfm }}-cross-${{ inputs.os == 'freebsd' && 'freebsd-14-' || '' }}${{ inputs.arch == 'x64' && 'amd64' || inputs.arch }} \
             ./build.sh \
               --clean-while-building \
               --prep \
